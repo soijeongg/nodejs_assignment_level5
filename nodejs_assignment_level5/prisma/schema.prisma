@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  CUSTOMER
+  OWNER
+}
+
+model Users {
+  nickname String   @id @map("nickname")
+  password String   @map("password")
+  usertype UserType @default(CUSTOMER) @map("usertype")
+
+  @@map("Users")
+}
+
+
+model Categories {
+  categoryId Int    @id @default(autoincrement()) @map("categoryId")
+  name       String @map("name")
+  order      Int    @map("order")   
+
+  menus      Menus[]
+
+  @@map("Categories") 
+}
+
+enum MenuStatus {
+  FOR_SALE
+  SOLD_OUT
+}
+
+model Menus {
+  menuId      Int         @id @default(autoincrement()) @map("menuId")
+  categoryId  Int         @map("categoryId")
+  name        String      @map("name")
+  description String      @map("description")
+  image       String      @map("image")
+  price       Int         @map("price")
+  status      MenuStatus  @default(FOR_SALE) @map("status")
+  order       Int         @map("order") 
+  category    Categories  @relation(fields: [categoryId], references: [categoryId], onDelete: Cascade)
+
+  @@map("Menus")
+}
+
