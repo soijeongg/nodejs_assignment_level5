@@ -1,4 +1,4 @@
-# nodejs_assignment_level4
+# nodejs_assignment_level5
 
 ## 프로젝트 내용
 
@@ -8,7 +8,7 @@
 
 ## 프로젝트 링크
 
-[Nodejslv4](http://54.180.109.189:3000/)
+[Nodejslv5](#)
 
 ## 프로젝트 진행
 
@@ -181,16 +181,13 @@ npx prisma init
      ```
    - .env 파일 작성
      ```plaintext
-     DATABASE_URL="mysql://[사용자 이름]:[암호]@[RDS 엔드포인트]:3306/nodejslv4"
+     DATABASE_URL="mysql://[사용자 이름]:[암호]@[RDS 엔드포인트]:3306/nodejslv5"
      PORT=3000
      ```
    - 과제 요구사항에 맞게 프로젝트 폴더 및 파일 생성
 
-     - lv4 과제에서는 기존의 lv3 프로젝트의 내용을 복사해서 사용
-     - 사장님 토큰을 검증하기 위한 auth.middleware.js 파일 추가
-     - signin과 signup을 router를 위한 user.router.js 파일 추가
-     - app.js 파일 추가 및 위치 변경(src 폴더 내로)
-     - utils\index.js를 utils\prisma\index.js로 위치 변경
+     - lv5 과제에서는 기존의 lv4 프로젝트의 내용을 복사해서 사용
+     - 기존의 코드에 소프트삭제 추가
 
    - app.js 파일 작성
 
@@ -263,7 +260,7 @@ git branch -a
 
 1. **EC2 인스턴스 생성**
 
-- 이름 : nodejslv4
+- 이름 : nodejslv5
 - OS image : Ubuntu
 - 인스턴스 유형: t2.micro
 - 기존 키페어 사용: pem 파일
@@ -287,7 +284,7 @@ npm -v
 
 ```bash
 # 프로젝트 클론
-git clone https://github.com/jovid18/nodejs_assignment_level4.git
+git clone https://github.com/jovid18/nodejs_assignment_level5.git
 # yarn 설치
 sudo npm install -g yarn
 # 패키지 설치
@@ -320,7 +317,7 @@ git branch
      # 입력 모드로 전환
      i (입력 모드로 전환)
      # .env 내용 붙여넣기
-     # DATABASE_URL="mysql://[사용자 이름]:[암호]@[RDS 엔드포인트]:3306/nodejslv3"
+     # DATABASE_URL="mysql://[사용자 이름]:[암호]@[RDS 엔드포인트]:3306/nodejslv5"
      # PORT=3000
      #명령 모드로 전환
      esc(명령 모드로 전환)
