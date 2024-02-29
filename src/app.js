@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import CategoryRouter from './routes/category.router.js';
 import MenuRouter from './routes/menu.router.js';
 import UserRouter from './routes/user.router.js';
+import OrderRouter from './routes/order.router.js';
 import LogMiddleware from './middlewares/log.middleware.js';
 import notFoundErrorHandler from './middlewares/notFoundError.middleware.js';
 import generalErrorHandler from './middlewares/generalError.middleware.js';
@@ -23,6 +24,7 @@ app.get('/', (req, res) => {
 
 app.use('/api', UserRouter);
 app.use('/api/categories', [CategoryRouter, MenuRouter]);
+app.use('/api/orders', OrderRouter);
 
 app.use(notFoundErrorHandler);
 app.use(generalErrorHandler);
