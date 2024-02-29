@@ -76,7 +76,7 @@ model Orders {
   updatedAt   DateTime    @updatedAt @map("updatedAt")
   totalPrice  Int         @map("totalPrice")
   user        Users       @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  menus       Menus       @relation(fields: [menuId], references: [menuId], onDelete: Cascade)
+  menu       Menus       @relation(fields: [menuId], references: [menuId], onDelete: Cascade)
 
   @@map("Orders")
 }

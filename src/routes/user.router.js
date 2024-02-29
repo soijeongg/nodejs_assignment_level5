@@ -97,7 +97,7 @@ router.post('/sign-up', async (req, res, next) => {
         nickname: user.nickname,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '10m' } // 토큰의 유효기간을 10분으로 설정
+      { expiresIn: '60m' } // 토큰의 유효기간을 60분으로 설정
     );
 
     res.cookie('authorization', `Bearer ${token}`);
