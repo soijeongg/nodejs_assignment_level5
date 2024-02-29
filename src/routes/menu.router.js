@@ -111,6 +111,7 @@ router.get('/:categoryId/menus', async (req, res, next) => {
     const category = await prisma.categories.findFirst({
       where: {
         categoryId,
+        deletedAt: null,
       },
     });
     if (!category) {
@@ -119,6 +120,7 @@ router.get('/:categoryId/menus', async (req, res, next) => {
     const menus = await prisma.menus.findMany({
       where: {
         categoryId,
+        deletedAt: null,
       },
       orderBy: {
         order: 'asc',
@@ -153,6 +155,7 @@ router.get('/:categoryId/menus/:menuId', async (req, res, next) => {
     const category = await prisma.categories.findFirst({
       where: {
         categoryId: +req.params.categoryId,
+        deletedAt: null,
       },
     });
     if (!category) {
@@ -161,6 +164,7 @@ router.get('/:categoryId/menus/:menuId', async (req, res, next) => {
     const menu = await prisma.menus.findFirst({
       where: {
         menuId: +req.params.menuId,
+        deletedAt: null,
       },
       select: {
         menuId: true,
@@ -226,6 +230,7 @@ router.put('/:categoryId/menus/:menuId', ownerauth, async (req, res, next) => {
     const category = await prisma.categories.findFirst({
       where: {
         categoryId: +req.params.categoryId,
+        deletedAt: null,
       },
     });
     if (!category) {
@@ -234,6 +239,7 @@ router.put('/:categoryId/menus/:menuId', ownerauth, async (req, res, next) => {
     const menu = await prisma.menus.findFirst({
       where: {
         menuId: +req.params.menuId,
+        deletedAt: null,
       },
     });
     if (!menu) {
@@ -273,6 +279,7 @@ router.delete(
       const category = await prisma.categories.findFirst({
         where: {
           categoryId: +req.params.categoryId,
+          deletedAt: null,
         },
       });
       if (!category) {
@@ -283,14 +290,18 @@ router.delete(
       const menu = await prisma.menus.findFirst({
         where: {
           menuId: +req.params.menuId,
+          deletedAt: null,
         },
       });
       if (!menu) {
         return res.status(404).json({ message: '존재하지 않는 메뉴입니다.' });
       }
-      await prisma.menus.delete({
+      await prisma.menus.update({
         where: {
           menuId: +req.params.menuId,
+        },
+        data: {
+          deletedAt: new Date(),
         },
       });
       return res.status(200).json({ message: '메뉴를 삭제하였습니다.' });
