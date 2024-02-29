@@ -19,9 +19,12 @@ enum UserType {
 }
 
 model Users {
-  nickname String   @id @map("nickname")
+  userId     Int    @id @default(autoincrement()) @map("userId")
+  nickname String   @id @unique @map("nickname") 
   password String   @map("password")
   usertype UserType @default(CUSTOMER) @map("usertype")
+
+  orders Orders[]
 
   @@map("Users")
 }
@@ -31,7 +34,7 @@ model Categories {
   categoryId Int    @id @default(autoincrement()) @map("categoryId")
   name       String @map("name")
   order      Int    @map("order")   
-
+  deleteAt    DateTime?   @map("deleteAt")
   menus      Menus[]
 
   @@map("Categories") 
@@ -51,8 +54,31 @@ model Menus {
   price       Int         @map("price")
   status      MenuStatus  @default(FOR_SALE) @map("status")
   order       Int         @map("order") 
+  stock       Int         @map("stock")
+  deleteAt    DateTime?   @map("deleteAt")
   category    Categories  @relation(fields: [categoryId], references: [categoryId], onDelete: Cascade)
+  order Orders[]
 
   @@map("Menus")
 }
 
+enum OrderStatus{
+  PENDING,
+  ACCEPTED,
+  CANCEL
+}
+
+model Orders{
+   orderId     Int         @id @@default(autoincrement()) @map("orderId)
+   menuId      Int         @map("menuId")
+   userId      Int         @map("userId")
+   quantity    Int         @map("quantity")
+   status      OrderStatus @map("status")  @default(PENDING)
+   createdAt   DateTime    @createdAt                      @map("createdAt")
+   updatedAt   DateTime    @updatedAt                      @map("updatedAt")
+   user        Users       @relation(fields: [userId], references: [userId], onDelete: Cascade)
+   menus       Menus       @relation(fields: [menuId], references: [menuId], onDelete: Cascade)
+
+
+@@map(Orders)
+}
