@@ -8,7 +8,7 @@ const router = express.Router();
 const categorySchema = Joi.object({
   categoryId: Joi.number().integer().required(),
 });
-const caregoryandmenuSchema = Joi.object({
+const categoryandmenuSchema = Joi.object({
   categoryId: Joi.number().integer().required(),
   menuId: Joi.number().integer().required(),
 });
@@ -18,11 +18,13 @@ const menuSchema = Joi.object({
   description: Joi.string().required(),
   image: Joi.string().required(),
   price: Joi.number().min(0).required(),
+  stock: Joi.number().min(0).required(),
 });
 const menuStatusSchema = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().required(),
   price: Joi.number().min(0).required(),
+  stock: Joi.number().min(0).required(),
   order: Joi.number().integer().required(),
   status: Joi.string().valid('FOR_SALE', 'SOLD_OUT').required(),
 });
@@ -40,10 +42,20 @@ router.post('/:categoryId/menus', ownerauth, async (req, res, next) => {
         (detail) =>
           detail.path.includes('price') && detail.type === 'number.min'
       );
+
       if (isPriceInvalid) {
         return res
           .status(400)
           .json({ message: '메뉴 가격은 0보다 작을 수 없습니다.' });
+      }
+      const isStockInvalid = bodyError.details.some(
+        (detail) =>
+          detail.path.includes('stock') && detail.type === 'number.min'
+      );
+      if (isStockInvalid) {
+        return res
+          .status(400)
+          .json({ message: '재고는 0보다 작을 수 없습니다.' });
       }
       return res
         .status(400)
@@ -68,7 +80,7 @@ router.post('/:categoryId/menus', ownerauth, async (req, res, next) => {
       },
     });
     const order = lastMenu ? lastMenu.order + 1 : 1;
-
+    const status = req.body.stock === 0 ? 'SOLD_OUT' : 'FOR_SALE';
     await prisma.menus.create({
       data: {
         categoryId,
@@ -76,6 +88,8 @@ router.post('/:categoryId/menus', ownerauth, async (req, res, next) => {
         description: req.body.description,
         image: req.body.image,
         price: req.body.price,
+        stock: req.body.stock,
+        status,
         order,
       },
     });
@@ -115,13 +129,13 @@ router.get('/:categoryId/menus', async (req, res, next) => {
         image: true,
         price: true,
         order: true,
+        stock: true,
         status: true,
       },
     });
     const revisedmenus = menus.map((menu) => ({
       id: menu.menuId,
       ...menu,
-      menuId: undefined,
     }));
     return res.status(200).json({ data: revisedmenus });
   } catch (error) {
@@ -130,7 +144,7 @@ router.get('/:categoryId/menus', async (req, res, next) => {
 });
 router.get('/:categoryId/menus/:menuId', async (req, res, next) => {
   try {
-    const { error: paramsError } = caregoryandmenuSchema.validate(req.params);
+    const { error: paramsError } = categoryandmenuSchema.validate(req.params);
     if (paramsError) {
       return res
         .status(400)
@@ -144,7 +158,6 @@ router.get('/:categoryId/menus/:menuId', async (req, res, next) => {
     if (!category) {
       return res.status(404).json({ message: '존재하지 않는 카테고리입니다.' });
     }
-    const { error: bodyError } = menuSchema.validate(req.body);
     const menu = await prisma.menus.findFirst({
       where: {
         menuId: +req.params.menuId,
@@ -156,6 +169,7 @@ router.get('/:categoryId/menus/:menuId', async (req, res, next) => {
         image: true,
         price: true,
         order: true,
+        stock: true,
         status: true,
       },
     });
@@ -165,7 +179,6 @@ router.get('/:categoryId/menus/:menuId', async (req, res, next) => {
     const revisedMenu = {
       id: menu.menuId,
       ...menu,
-      menuId: undefined,
     };
     return res.status(200).json({ data: revisedMenu });
   } catch (error) {
@@ -175,7 +188,7 @@ router.get('/:categoryId/menus/:menuId', async (req, res, next) => {
 
 router.put('/:categoryId/menus/:menuId', ownerauth, async (req, res, next) => {
   try {
-    const { error: paramsError } = caregoryandmenuSchema.validate(req.params);
+    const { error: paramsError } = categoryandmenuSchema.validate(req.params);
     if (paramsError) {
       return res
         .status(400)
@@ -192,9 +205,23 @@ router.put('/:categoryId/menus/:menuId', ownerauth, async (req, res, next) => {
           .status(400)
           .json({ message: '메뉴 가격은 0보다 작을 수 없습니다.' });
       }
+      const isStockInvalid = bodyError.details.some(
+        (detail) =>
+          detail.path.includes('stock') && detail.type === 'number.min'
+      );
+      if (isStockInvalid) {
+        return res
+          .status(400)
+          .json({ message: '재고는 0보다 작을 수 없습니다.' });
+      }
       return res
         .status(400)
         .json({ message: '요청 데이터 형식이 올바르지 않습니다.' });
+    }
+    if (req.body.stock === 0 && req.body.status === 'FOR_SALE') {
+      return res.status(400).json({
+        message: '재고가 없는 메뉴는 판매 중으로 변경할 수 없습니다.',
+      });
     }
     const category = await prisma.categories.findFirst({
       where: {
@@ -221,6 +248,7 @@ router.put('/:categoryId/menus/:menuId', ownerauth, async (req, res, next) => {
         description: req.body.description,
         image: req.body.image,
         price: req.body.price,
+        stock: req.body.stock,
         order: req.body.order,
         status: req.body.status,
       },
