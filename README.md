@@ -13,7 +13,7 @@
 
 ## 프로젝트 링크
 
-[Nodejslv5](#)
+[Nodejslv5](http://3.39.238.141:3000/api/categories)
 
 ## 프로젝트 진행
 
