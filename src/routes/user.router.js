@@ -11,7 +11,7 @@ const passwordSchema = Joi.string().min(8).max(20).required();
 const usertypeSchemma = Joi.string().valid('CUSTOMER', 'OWNER').required();
 
 //sign-in router 작성
-router.post('/sign-in', async (req, res, next) => {
+router.post('/sign-up', async (req, res, next) => {
   try {
     let { nickname, password, usertype } = req.body;
     if (!nickname || !password) {
@@ -73,7 +73,7 @@ router.post('/sign-in', async (req, res, next) => {
 });
 
 //sign-up router 작성
-router.post('/sign-up', async (req, res, next) => {
+router.post('/sign-in', async (req, res, next) => {
   try {
     const { nickname, password } = req.body;
     if (!nickname || !password) {

@@ -11,7 +11,13 @@ const orderSchema = Joi.object({
   quantity: Joi.number().required(),
 });
 //3, 4 번 joi 필요시 작성
+const statusSchemas = Joi.object({
+  status: Joi.string().valid('PENDING', 'ACCEPTED', 'CANCEL').required(),
+});
 
+const OrderSchemas = Joi.object({
+  orderId: Joi.number().integer().required(),
+});
 // 1번 라우터 작성
 // 1. 메뉴 주문 API
 //     - 메뉴 Id, 주문 갯수를 **request**에서 전달받기
@@ -154,6 +160,72 @@ router.get('/customer', customerauth, async (req, res, next) => {
   }
 });
 // 3번 라우터 작성
+//사장님 주문내역 조회 relation테이블의 정보를 가져와 보여주는 include 사용
+router.get("/owner", ownerauth, async(req, res, next)=>{
+    try {
+      let findOrder = await prisma.Orders.findMany({
+        select: {
+          orderId: true,
+
+          user: {
+            select: {
+              userId: true,
+              nickname: true,
+            },
+          },
+          menu: {
+            select: {
+              name: true,
+              price: true,
+            },
+          },
+          quantity: true,
+          status: true,
+          createdAt: true,
+          totalPrice: true,
+        },
+        orderBy: {
+            createdAt: 'desc'
+        },
+      });
+      res.status(200).json({ data: findOrder });
+    } catch (error) {
+      next(error);
+    }
+})
 
 // 4번 라우터 작성
+//주문 상태 변경 주문 아이디 주문 상태를 받고 토큰 사장일때만 
+router.put("/:orderId/status", ownerauth, async(req,res, next)=>{
+    try{
+        let {orderId} = req.params
+        let {status} = req.body
+         const validationResult = OrderSchemas.validate({ orderId });
+         if (validationResult.error) {
+           return res
+             .status(404)
+             .json({ message: '데이터 형식이 올바르지 않습니다.' });
+         }
+
+         const validation  = statusSchemas.validate({status});
+         if(validation.error){
+            return res.status(404).json({message: "데이터 형식이 올바르지 않습니다"})
+         }
+
+         findOrder = await Prisma.orders.findFirst({
+            where: {orderId: orderId}
+         });
+         if(!findOrder){
+            return res.status(404).json({message: "존재하지 않는 주문내역입니다."})
+         }
+         let updateOne = await prisma.orders.update({
+            data:{status},
+            where:{orderId: orderId}
+         })
+         res.status(200).json({data:"주문 내역을 수정하였습니다."})
+    }catch(error){
+        next(error)
+    }
+})
+
 export default router;

@@ -22,6 +22,9 @@ router.get('/', async (req, res, next) => {
         name: true,
         order: true,
       },
+      where:{
+        deletedAt:null
+      },
       orderBy: {
         order: 'asc',
       },
@@ -89,7 +92,8 @@ router.put('/:categoryId', ownerauth, async (req, res, next) => {
 router.delete('/:categoryId', ownerauth, async (req, res, next) => {
   try {
     let { categoryId } = req.params;
-    let deleteOne = await prisma.categories.delete({
+    let deleteOne = await prisma.categories.update({
+      data:{deletedAt: now()},
       where: { categoryId: +categoryId },
     });
 
