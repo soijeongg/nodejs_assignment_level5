@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.get('/', (req, res) => {
-  res.send('<h1>4차과제</h1>');
+  res.send('<h1>5차과제</h1>');
 });
 
 app.use('/api', UserRouter);

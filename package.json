@@ -1,9 +1,9 @@
 {
-  "name": "nodejs_assignment_level4",
+  "name": "nodejs_assignment_level5",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/jovid18/nodejs_assignment_level4.git",
-  "author": "jovid_18 <cshcho99@gmail.com>",
+  "repository": "https://github.com/soijeongg/nodejs_assignment_level5.git",
+  "author": "soijeongg <010127js@gmail.com>",
   "license": "MIT",
   "type": "module",
   "dependencies": {

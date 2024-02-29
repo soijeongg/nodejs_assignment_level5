@@ -2,9 +2,9 @@
 
 ## 프로젝트 내용
 
-1. **lv3 과제의 내용 보완**
-2. **회원가입/로그인 API 구현하기**
-3. **로그인 토큰을 검사 미들웨어 추가**
+1. **lv4 과제의 내용 보완**
+2. **메뉴 주문 관련 API 구현하기**
+3. **소프트 삭제 구현하기**
 
 ## 프로젝트 링크
 
@@ -145,11 +145,11 @@ npx prisma init
 
 ```json
 {
-  "name": "nodejs_assignment_level4",
+  "name": "nodejs_assignment_level5",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/jovid18/nodejs_assignment_level4.git",
-  "author": "jovid_18 <cshcho99@gmail.com>",
+  "repository": "https://github.com/soijeongg/nodejs_assignment_level5.git",
+  "author": "soijeongg <010127js@gmail.com>",
   "license": "MIT",
   "type": "module",
   "dependencies": {
@@ -161,7 +161,8 @@ npx prisma init
     "express-session": "^1.18.0",
     "joi": "^17.12.2",
     "jsonwebtoken": "^9.0.2",
-    "prisma": "^5.10.2"
+    "prisma": "^5.10.2",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "dotenv": "^16.4.5",
@@ -180,10 +181,13 @@ npx prisma init
      }
      ```
    - .env 파일 작성
+
      ```plaintext
      DATABASE_URL="mysql://[사용자 이름]:[암호]@[RDS 엔드포인트]:3306/nodejslv5"
      PORT=3000
+     JWT_SECRET="nodejslv5"
      ```
+
    - 과제 요구사항에 맞게 프로젝트 폴더 및 파일 생성
 
      - lv5 과제에서는 기존의 lv4 프로젝트의 내용을 복사해서 사용
@@ -212,7 +216,7 @@ npx prisma init
    app.use(cookieParser());
    app.use(express.urlencoded({ extended: false }));
    app.get('/', (req, res) => {
-     res.send('<h1>4차과제</h1>');
+     res.send('<h1>5차과제</h1>');
    });
 
    app.use('/api', UserRouter);
@@ -239,8 +243,9 @@ npx prisma init
    ```
 
 4. **main/production branch push**
+
 ```bash
-# main repository에서 production branch 생성 
+# main repository에서 production branch 생성
 git checkout -b production
 
 #main과 merge
@@ -254,7 +259,6 @@ git branch -a
 
 
 ```
-
 
 ### EC2 배포
 
