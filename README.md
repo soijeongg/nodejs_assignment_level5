@@ -6,6 +6,11 @@
 2. **메뉴 주문 관련 API 구현하기**
 3. **소프트 삭제 구현하기**
 
+## ERD 작성
+[ERDlink](https://drawsql.app/teams/cshcho99s-team/diagrams/nodejslv5)
+![drawSQL-image-export-2024-02-29 (3)](https://github.com/jovid18/nodejs_assignment_level4/assets/143411145/0e7abf4b-3f53-4b21-9a29-abaf86389f4f)
+
+
 ## 프로젝트 링크
 
 [Nodejslv5](#)
