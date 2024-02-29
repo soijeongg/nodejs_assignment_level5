@@ -13,6 +13,9 @@ const schema = Joi.object({
 const schemas = Joi.object({
   name: Joi.string().required(),
 });
+const idSchemas = Joi.object({
+  categoryId: Joi.number().integer().required(),
+});
 //카테고리 전체 조회
 router.get('/', async (req, res, next) => {
   try {
@@ -92,6 +95,12 @@ router.put('/:categoryId', ownerauth, async (req, res, next) => {
 router.delete('/:categoryId', ownerauth, async (req, res, next) => {
   try {
     let { categoryId } = req.params;
+     const validationResults = idSchemas.validate({ categoryId });
+     if (validationResults.error) {
+       return res
+         .status(404)
+         .json({ message: '데이터 형식이 올바르지 않습니다.' });
+     }
      let categoryfind = await prisma.categories.findFirst({
        where: { categoryId: +categoryId, deletedAt: null },
      });
