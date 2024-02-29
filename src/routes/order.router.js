@@ -169,7 +169,6 @@ router.get("/owner", ownerauth, async(req, res, next)=>{
 
           user: {
             select: {
-              userId: true,
               nickname: true,
             },
           },
@@ -212,8 +211,8 @@ router.put("/:orderId/status", ownerauth, async(req,res, next)=>{
             return res.status(404).json({message: "데이터 형식이 올바르지 않습니다"})
          }
 
-         findOrder = await Prisma.orders.findFirst({
-            where: {orderId: orderId}
+         findOrder = await prisma.orders.findFirst({
+            where: {orderId: +orderId}
          });
          if(!findOrder){
             return res.status(404).json({message: "존재하지 않는 주문내역입니다."})
