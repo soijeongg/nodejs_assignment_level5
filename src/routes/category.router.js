@@ -72,7 +72,7 @@ router.put('/:categoryId', ownerauth, async (req, res, next) => {
         .json({ message: '데이터 형식이 올바르지 않습니다.' });
     }
     let categoryfind = await prisma.categories.findFirst({
-      where: { categoryId: +categoryId },
+      where: { categoryId: +categoryId, deletedAt: null },
     });
     if (!categoryfind) {
       return res.status(404).json({ message: '존재하지 않는 카테고리입니다' });
@@ -92,8 +92,14 @@ router.put('/:categoryId', ownerauth, async (req, res, next) => {
 router.delete('/:categoryId', ownerauth, async (req, res, next) => {
   try {
     let { categoryId } = req.params;
+     let categoryfind = await prisma.categories.findFirst({
+       where: { categoryId: +categoryId, deletedAt: null },
+     });
+     if (!categoryfind) {
+       return res.status(404).json({ message: '존재하지 않는 카테고리입니다' });
+     }
     let deleteOne = await prisma.categories.update({
-      data:{deletedAt: now()},
+      data: { deletedAt: new Date() },
       where: { categoryId: +categoryId },
     });
 

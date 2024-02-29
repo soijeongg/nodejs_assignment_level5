@@ -211,7 +211,7 @@ router.put("/:orderId/status", ownerauth, async(req,res, next)=>{
             return res.status(404).json({message: "데이터 형식이 올바르지 않습니다"})
          }
 
-         findOrder = await prisma.orders.findFirst({
+        let findOrder = await prisma.orders.findFirst({
             where: {orderId: +orderId}
          });
          if(!findOrder){
@@ -219,7 +219,7 @@ router.put("/:orderId/status", ownerauth, async(req,res, next)=>{
          }
          let updateOne = await prisma.orders.update({
             data:{status},
-            where:{orderId: orderId}
+            where:{orderId: +orderId}
          })
          res.status(200).json({data:"주문 내역을 수정하였습니다."})
     }catch(error){

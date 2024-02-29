@@ -270,7 +270,7 @@ router.delete(
   ownerauth,
   async (req, res, next) => {
     try {
-      const { error: paramsError } = caregoryandmenuSchema.validate(req.params);
+      const { error: paramsError } = categoryandmenuSchema.validate(req.params);
       if (paramsError) {
         return res
           .status(400)
