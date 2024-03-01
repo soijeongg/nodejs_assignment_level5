@@ -68,6 +68,12 @@ router.put('/:categoryId', ownerauth, async (req, res, next) => {
   try {
     let { categoryId } = req.params;
     const { name, order } = req.body;
+     const validationResults = idSchemas.validate({ categoryId });
+     if (validationResults.error) {
+       const error = new Error('데이터 형식이 올바르지 않습니다.');
+       error.status = 404;
+       throw error;
+     }
     const validationResult = schema.validate({ name, order });
     if (validationResult.error) {
       const error = new Error('데이터 형식이 올바르지 않습니다.');
