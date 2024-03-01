@@ -1,15 +1,15 @@
 import express from 'express';
 import Joi from 'joi';
-const router = express.Router();
 import { prisma } from '../utils/prisma/index.js';
 import { ownerauth, customerauth } from '../middlewares/auth.middleware.js';
+const router = express.Router();
 
-//유효성 검사 위한 스키마 (수정시 사용함)
+// PUT /categories/:categoryId를 위한 schema
 const schema = Joi.object({
   name: Joi.string().required(),
   order: Joi.number().integer().required(),
 });
-//유효성 검사위한 스키마 (등록시 사용)
+// POST /categories를 위한 schema
 const schemas = Joi.object({
   name: Joi.string().required(),
 });
@@ -19,14 +19,14 @@ const idSchemas = Joi.object({
 //카테고리 전체 조회
 router.get('/', async (req, res, next) => {
   try {
-    let category = await prisma.categories.findMany({
+    const category = await prisma.categories.findMany({
       select: {
         categoryId: true,
         name: true,
         order: true,
       },
-      where:{
-        deletedAt:null
+      where: {
+        deletedAt: null,
       },
       orderBy: {
         order: 'asc',
@@ -44,15 +44,15 @@ router.post('/', ownerauth, async (req, res, next) => {
     let { name } = req.body;
     const validationResult = schemas.validate({ name });
     if (validationResult.error) {
-      return res
-        .status(404)
-        .json({ message: '데이터 형식이 올바르지 않습니다.' });
+      const error = new Error('데이터 형식이 올바르지 않습니다.');
+      error.status = 404;
+      throw error;
     }
     const lastCategory = await prisma.categories.findFirst({
       orderBy: { order: 'desc' },
     });
     const order = lastCategory ? lastCategory.order + 1 : 1;
-    let category = await prisma.categories.create({
+    await prisma.categories.create({
       data: {
         name,
         order,
@@ -70,17 +70,19 @@ router.put('/:categoryId', ownerauth, async (req, res, next) => {
     const { name, order } = req.body;
     const validationResult = schema.validate({ name, order });
     if (validationResult.error) {
-      return res
-        .status(404)
-        .json({ message: '데이터 형식이 올바르지 않습니다.' });
+      const error = new Error('데이터 형식이 올바르지 않습니다.');
+      error.status = 404;
+      throw error;
     }
     let categoryfind = await prisma.categories.findFirst({
       where: { categoryId: +categoryId, deletedAt: null },
     });
     if (!categoryfind) {
-      return res.status(404).json({ message: '존재하지 않는 카테고리입니다' });
+      const error = new Error('존재하지 않는 카테고리입니다');
+      error.status = 404;
+      throw error;
     }
-    let updateOne = await prisma.categories.update({
+    await prisma.categories.update({
       data: { name, order },
       where: {
         categoryId: +categoryId,
@@ -95,25 +97,29 @@ router.put('/:categoryId', ownerauth, async (req, res, next) => {
 router.delete('/:categoryId', ownerauth, async (req, res, next) => {
   try {
     let { categoryId } = req.params;
-     const validationResults = idSchemas.validate({ categoryId });
-     if (validationResults.error) {
-       return res
-         .status(404)
-         .json({ message: '데이터 형식이 올바르지 않습니다.' });
-     }
-     let categoryfind = await prisma.categories.findFirst({
-       where: { categoryId: +categoryId, deletedAt: null },
-     });
-     if (!categoryfind) {
-       return res.status(404).json({ message: '존재하지 않는 카테고리입니다' });
-     }
+    const validationResults = idSchemas.validate({ categoryId });
+    if (validationResults.error) {
+      const error = new Error('데이터 형식이 올바르지 않습니다.');
+      error.status = 404;
+      throw error;
+    }
+    let categoryfind = await prisma.categories.findFirst({
+      where: { categoryId: +categoryId, deletedAt: null },
+    });
+    if (!categoryfind) {
+      const error = new Error('존재하지 않는 카테고리입니다');
+      error.status = 404;
+      throw error;
+    }
     let deleteOne = await prisma.categories.update({
       data: { deletedAt: new Date() },
       where: { categoryId: +categoryId },
     });
 
     if (!deleteOne) {
-      return res.status(404).json({ message: '존재하지 않는 카테고리입니다' });
+      const error = new Error('존재하지 않는 카테고리입니다');
+      error.status = 404;
+      throw error;
     }
     return res.status(200).json({ message: '카테고리 정보를 삭제하였습니다.' });
   } catch (error) {

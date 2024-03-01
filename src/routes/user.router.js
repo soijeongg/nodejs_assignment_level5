@@ -14,51 +14,49 @@ const usertypeSchemma = Joi.string().valid('CUSTOMER', 'OWNER').required();
 router.post('/sign-up', async (req, res, next) => {
   try {
     let { nickname, password, usertype } = req.body;
-    if (!nickname || !password) {
-      return res
-        .status(400)
-        .json({ message: '데이터 형식이 올바르지 않습니다' });
-    }
     const vaildation = nicknameSchema.validate(nickname);
     if (vaildation.error) {
-      return res
-        .status(400)
-        .json({ message: '닉네임 형식에 일치하지 않습니다.' });
+      const error = new Error('닉네임 형식이 일치하지 않습니다');
+      error.status = 400;
+      throw error;
     }
     const passwordvali = passwordSchema.validate(password);
     if (passwordvali.error) {
-      return res
-        .status(400)
-        .json({ message: '비밀번호 형식이 일치하지 않습니다' });
+      const error = new Error('비밀번호 형식이 일치하지 않습니다');
+      error.status = 400;
+      throw error;
     }
     if (usertype) {
       const usertypevali = usertypeSchemma.validate(usertype);
       if (usertypevali.error) {
-        return res.status(400).json({
-          message:
-            'user type에는 OWNER 와 CUSTOMER만 존재합니다 이 두개중 골라 쓰시거나 쓰지않고 넘어가주세요',
-        });
+        const error = new Error(
+          "'user type에는 OWNER 와 CUSTOMER만 존재합니다 이 두개중 골라 쓰시거나 쓰지않고 넘어가주세요'"
+        );
+        error.status = 400;
+        throw error;
       }
     }
-    let findname = await prisma.Users.findFirst({
+    let findname = await prisma.users.findFirst({
       where: {
         nickname: nickname,
       },
     });
     if (findname) {
-      return res.status(409).json({ message: '중복된 닉네임 입니다.' });
+      const error = new Error('중복된 닉네임 입니다.');
+      error.status = 409;
+      throw error;
     }
     let hashpassword = await bcrypt.hash(password, 10);
 
     if (!usertype) {
-      let signuser = await prisma.Users.create({
+      await prisma.users.create({
         data: {
           nickname,
           password: hashpassword,
         },
       });
     } else {
-      let signuser = await prisma.Users.create({
+      await prisma.users.create({
         data: {
           nickname,
           password: hashpassword,
@@ -76,10 +74,17 @@ router.post('/sign-up', async (req, res, next) => {
 router.post('/sign-in', async (req, res, next) => {
   try {
     const { nickname, password } = req.body;
-    if (!nickname || !password) {
-      return res
-        .status(400)
-        .json({ message: '데이터 형식이 올바르지 않습니다' });
+    const vaildation = nicknameSchema.validate(nickname);
+    if (vaildation.error) {
+      const error = new Error('닉네임 형식이 일치하지 않습니다');
+      error.status = 400;
+      throw error;
+    }
+    const passwordvali = passwordSchema.validate(password);
+    if (passwordvali.error) {
+      const error = new Error('비밀번호 형식이 일치하지 않습니다');
+      error.status = 400;
+      throw error;
     }
     const user = await prisma.users.findFirst({
       where: {
@@ -87,10 +92,14 @@ router.post('/sign-in', async (req, res, next) => {
       },
     });
     if (!user) {
-      return res.status(401).json({ message: '존재하지 않는 닉네임입니다.' });
+      const error = new Error('존재하지 않는 닉네임 입니다.');
+      error.status = 401;
+      throw error;
     }
     if (!(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
+      const error = new Error('비밀번호가 일치하지 않습니다.');
+      error.status = 401;
+      throw error;
     }
     const token = jwt.sign(
       {

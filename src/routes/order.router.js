@@ -5,20 +5,19 @@ import { ownerauth, customerauth } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-//1, 2번 joi 필요시 작성
+// POST /를 위한 schema
 const orderSchema = Joi.object({
   menuId: Joi.number().required(),
   quantity: Joi.number().required(),
 });
-//3, 4 번 joi 필요시 작성
+// PUT /:orderId/status를 위한 schema
 const statusSchemas = Joi.object({
   status: Joi.string().valid('PENDING', 'ACCEPTED', 'CANCEL').required(),
 });
-
+// PUT /:orderId/status를 위한 schema
 const OrderSchemas = Joi.object({
   orderId: Joi.number().integer().required(),
 });
-// 1번 라우터 작성
 // 1. 메뉴 주문 API
 router.post('/', customerauth, async (req, res, next) => {
   try {
@@ -32,12 +31,13 @@ router.post('/', customerauth, async (req, res, next) => {
             //joi를 사용하여 유효성 검사
             const { error } = orderSchema.validate(order);
             if (error) {
-              error.status = 400;
-              throw new Error(
+              const error = new Error(
                 `데이터 형식이 올바르지 않습니다. ${
                   index + 1
                 }번째 데이터에서 오류가 발생했습니다.`
               );
+              error.status = 400;
+              throw error;
             }
             const { menuId, quantity } = order;
             //menuId에 해당하는 메뉴가 존재하는지 확인
@@ -72,16 +72,18 @@ router.post('/', customerauth, async (req, res, next) => {
       // req.body가 단일 객체인 경우
       const { error } = orderSchema.validate(req.body);
       if (error) {
-        return res
-          .status(400)
-          .json({ message: '데이터 형식이 올바르지 않습니다.' });
+        const error = new Error('데이터 형식이 올바르지 않습니다.');
+        error.status = 400;
+        throw error;
       }
       const { menuId, quantity } = req.body;
       const menu = await prisma.menus.findUnique({
         where: { menuId: +menuId },
       });
       if (!menu) {
-        return res.status(404).json({ message: '존재하지 않는 메뉴입니다.' });
+        const error = new Error('존재하지 않는 메뉴입니다.');
+        error.status = 404;
+        throw error;
       }
       await prisma.orders.create({
         data: {
@@ -135,7 +137,7 @@ router.get('/customer', customerauth, async (req, res, next) => {
 //사장님 주문내역 조회 relation테이블의 정보를 가져와 보여주는 include 사용
 router.get('/owner', ownerauth, async (req, res, next) => {
   try {
-    let findOrder = await prisma.Orders.findMany({
+    let findOrder = await prisma.orders.findMany({
       select: {
         orderId: true,
 
@@ -173,25 +175,27 @@ router.put('/:orderId/status', ownerauth, async (req, res, next) => {
     let { status } = req.body;
     const validationResult = OrderSchemas.validate({ orderId });
     if (validationResult.error) {
-      return res
-        .status(404)
-        .json({ message: '데이터 형식이 올바르지 않습니다.' });
+      const error = new Error('데이터 형식이 올바르지 않습니다.');
+      error.status = 404;
+      throw error;
     }
 
     const validation = statusSchemas.validate({ status });
     if (validation.error) {
-      return res
-        .status(404)
-        .json({ message: '데이터 형식이 올바르지 않습니다' });
+      const error = new Error('데이터 형식이 올바르지 않습니다.');
+      error.status = 404;
+      throw error;
     }
 
     let findOrder = await prisma.orders.findFirst({
       where: { orderId: +orderId },
     });
     if (!findOrder) {
-      return res.status(404).json({ message: '존재하지 않는 주문내역입니다.' });
+      const error = new Error('존재하지 않는 주문내역입니다.');
+      error.status = 404;
+      throw error;
     }
-    let updateOne = await prisma.orders.update({
+    await prisma.orders.update({
       data: { status },
       where: { orderId: +orderId },
     });
