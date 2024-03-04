@@ -5,12 +5,12 @@ import { ownerauth, customerauth } from '../middlewares/auth.middleware.js';
 const router = express.Router();
 
 // PUT /categories/:categoryId를 위한 schema
-const schema = Joi.object({
+const nameOrderschema = Joi.object({
   name: Joi.string().required(),
   order: Joi.number().integer().required(),
 });
 // POST /categories를 위한 schema
-const schemas = Joi.object({
+const nameschemas = Joi.object({
   name: Joi.string().required(),
 });
 const idSchemas = Joi.object({
@@ -42,7 +42,7 @@ router.post('/', ownerauth, async (req, res, next) => {
   try {
     //없으면
     let { name } = req.body;
-    const validationResult = schemas.validate({ name });
+    const validationResult = nameschemas.validate({ name });
     if (validationResult.error) {
       const error = new Error('데이터 형식이 올바르지 않습니다.');
       error.status = 404;
@@ -74,7 +74,7 @@ router.put('/:categoryId', ownerauth, async (req, res, next) => {
        error.status = 404;
        throw error;
      }
-    const validationResult = schema.validate({ name, order });
+    const validationResult = nameOrderschema.validate({ name, order });
     if (validationResult.error) {
       const error = new Error('데이터 형식이 올바르지 않습니다.');
       error.status = 404;
