@@ -1,12 +1,29 @@
 // src/middlewares/log.middleware.js
 
 import winston from 'winston';
+import winstonDaily from 'winston-daily-rotate-file';
+
+const logDir = `${process.cwd()}/logs`;
+
+const fileTransport = new winstonDaily({
+  level: 'info',
+  dirname: logDir,
+  filename: '%DATE%.log',
+  datePattern: 'YYYY-MM-DD',
+  zippedArchive: true,
+  maxSize: '20m',
+  maxFiles: '14d',
+});
 
 const logger = winston.createLogger({
   level: 'info', // 로그 레벨을 'info'로 설정합니다.
-  format: winston.format.json(), // 로그 포맷을 JSON 형식으로 설정합니다.
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ), // 로그 포맷을 JSON 형식으로 설정합니다.
   transports: [
     new winston.transports.Console(), // 로그를 콘솔에 출력합니다.
+    fileTransport, // 로그를 파일에 출력합니다.
   ],
 });
 
