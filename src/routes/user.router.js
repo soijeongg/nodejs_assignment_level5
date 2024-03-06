@@ -26,6 +26,11 @@ router.post('/sign-up', async (req, res, next) => {
       error.status = 400;
       throw error;
     }
+     if (password.includes(nickname)) {
+       const error = new Error('비밀번호 형식이 일치하지 않습니다');
+       error.status = 400;
+       throw error;
+     }
     if (usertype) {
       const usertypevali = usertypeSchemma.validate(usertype);
       if (usertypevali.error) {
